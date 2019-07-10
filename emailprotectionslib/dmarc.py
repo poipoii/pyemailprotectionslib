@@ -17,6 +17,9 @@ class DmarcRecord(object):
         self.pct = None
         self.rua = None
         self.ruf = None
+        self.fo = None
+        self.rf = None
+        self.ri = None
         self.subdomain_policy = None
         self.dkim_alignment = None
         self.spf_alignment = None
@@ -41,6 +44,12 @@ class DmarcRecord(object):
             self.ruf = tag_value
         elif tag_name == "sp":
             self.subdomain_policy = tag_value
+        elif tag_name == "fo":
+            self.fo = tag_value
+        elif tag_name == "rf":
+            self.rf = tag_value
+        elif tag_name == "ri":
+            self.ri = tag_value
         elif tag_name == "adkim":
             self.dkim_alignment = tag_value
         elif tag_name == "aspf":

@@ -1,6 +1,11 @@
 import emailprotectionslib.dmarc as dmarclib
 
 
+def test_str():
+    dmarc_str = 'v=DMARC1; p=reject; rua=mailto:mailauth-reports@google.com; ruf=mailauth-reports@google.com; pct=100; fo=0; sp=reject;'
+    assert str(dmarclib.DmarcRecord.from_dmarc_string(dmarc_str, "google.com")) == dmarc_str
+
+
 def test_find_record_from_answers_valid():
     dmarc_string = '"v=DMARC1; p=reject; rua=mailto:mailauth-reports@google.com"'
     dmarc_string_without_quotes = 'v=DMARC1; p=reject; rua=mailto:mailauth-reports@google.com'
@@ -82,3 +87,9 @@ def test_record_strength_no_policy():
     record = dmarclib.DmarcRecord.from_dmarc_string(dmarc_string, "google.com")
 
     assert record.is_record_strong() is False
+
+
+def test_org_record_strength():
+    dmarc_string = "v=DMARC1; p=quarantine; rua=mailto:mailauth-reports@google.com"
+    record = dmarclib.DmarcRecord.from_dmarc_string(dmarc_string, "www.google.com")
+    assert record.is_org_domain_strong() is True

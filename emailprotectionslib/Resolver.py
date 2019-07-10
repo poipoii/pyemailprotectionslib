@@ -115,7 +115,7 @@ class resolver(object):
 verbose = False
 
 
-def trace(*args, **kwargs):
+def trace(*args, **kwargs):  # pragma: no cover
     if verbose:
         for a in args:
             sys.stderr.write(str(a))
