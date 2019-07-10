@@ -111,7 +111,7 @@ class DmarcRecord(object):
 
 
 def _extract_tags(dmarc_record):
-    dmarc_pattern = "(\w+)=(.*?)(?:; ?|$)"
+    dmarc_pattern = r"(\w+)=(.*?)(?:; ?|$)"
     return re.findall(dmarc_pattern, dmarc_record)
 
 

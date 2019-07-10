@@ -4,24 +4,25 @@ from builtins import object
 import dnslib
 import sys
 
-#A resolver wrapper around dnslib.py
+
+# A resolver wrapper around dnslib.py
 # stolen wholesale from https://github.com/TheRook/subbrute
 # thanks Rook
 class resolver(object):
-    #Google's DNS servers are only used if zero resolvers are specified by the user.
+    # Google's DNS servers are only used if zero resolvers are specified by the user.
     pos = 0
     rcode = ""
     wildcards = {}
     failed_code = False
     last_resolver = ""
 
-    def __init__(self, nameservers = ['8.8.8.8','8.8.4.4']):
+    def __init__(self, nameservers=['8.8.8.8', '8.8.4.4']):
         self.nameservers = nameservers
 
-    def query(self, hostname, query_type = 'ANY', name_server = False, use_tcp = True):
+    def query(self, hostname, query_type='ANY', name_server=False, use_tcp=True):
         ret = []
         response = None
-        if name_server == False:
+        if name_server is False:
             name_server = self.get_ns()
         else:
             self.wildcards = {}
@@ -35,25 +36,25 @@ class resolver(object):
             else:
                 raise IOError("Empty Response")
         except Exception as e:
-            #IOErrors are all conditions that require a retry.
+            # IOErrors are all conditions that require a retry.
             raise IOError(str(e))
         if response:
             self.rcode = dnslib.RCODE[response.header.rcode]
             for r in response.rr:
                 try:
                     rtype = str(dnslib.QTYPE[r.rtype])
-                except:#Server sent an unknown type:
+                except Exception:  # Server sent an unknown type:
                     rtype = str(r.rtype)
-                #Fully qualified domains may cause problems for other tools that use subbrute's output.
+                # Fully qualified domains may cause problems for other tools that use subbrute's output.
                 rhost = str(r.rname).rstrip(".")
                 ret.append((rhost, rtype, str(r.rdata)))
-            #What kind of response did we get?
+            # What kind of response did we get?
             if self.rcode not in ['NOERROR', 'NXDOMAIN', 'SERVFAIL', 'REFUSED']:
                 trace('!Odd error code:', self.rcode, hostname, query_type)
-            #Is this a perm error?  We will have to retry to find out.
+            # Is this a perm error?  We will have to retry to find out.
             if self.rcode in ['SERVFAIL', 'REFUSED', 'FORMERR', 'NOTIMP', 'NOTAUTH']:
                 raise IOError('DNS Failure: ' + hostname + " - " + self.rcode)
-            #Did we get an empty body and a non-error code?
+            # Did we get an empty body and a non-error code?
             elif not len(ret) and self.rcode != "NXDOMAIN":
                 raise IOError("DNS Error - " + self.rcode + " - for:" + hostname)
         return ret
@@ -76,7 +77,7 @@ class resolver(object):
         # we may have metadata on how this resolver fails
         try:
             ret, self.wildcards, self.failed_code = ret
-        except:
+        except Exception:
             self.wildcards = {}
             self.failed_code = None
         self.pos += 1
@@ -92,25 +93,28 @@ class resolver(object):
             try:
                 trace("Looking for nameservers:", hostname)
                 nameservers = self.query(hostname, 'NS')
-            except IOError:#lookup failed.
+            except IOError:  # lookup failed.
                 nameservers = []
             for n in nameservers:
-                #A DNS server could return anything.
+                # A DNS server could return anything.
                 rhost, record_type, record = n
                 if record_type == "NS":
-                    #Return all A records for this NS lookup.
+                    # Return all A records for this NS lookup.
                     a_lookup = self.query(record.rstrip("."), 'A')
                     for a_host, a_type, a_record in a_lookup:
                         ret.append(a_record)
-                #If a nameserver wasn't found try the parent of this sub.
+                # If a nameserver wasn't found try the parent of this sub.
             hostname = hostname[hostname.find(".") + 1:]
         return ret
 
     def get_last_resolver(self):
         return self.last_resolver
 
-#Toggle debug output
+
+# Toggle debug output
 verbose = False
+
+
 def trace(*args, **kwargs):
     if verbose:
         for a in args:

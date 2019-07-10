@@ -156,9 +156,9 @@ def _find_unique_mechanisms(initial_mechanisms, redirected_mechanisms):
 
 
 def _extract_mechanisms(spf_string):
-    spf_mechanism_pattern = ("(?:((?:\+|-|~)?(?:a|mx|ptr|include"
-                             "|ip4|ip6|exists|redirect|exp|all)"
-                             "(?:(?::|=|/)?(?:\S*))?) ?)")
+    spf_mechanism_pattern = (r"(?:((?:\+|-|~)?(?:a|mx|ptr|include"
+                             r"|ip4|ip6|exists|redirect|exp|all)"
+                             r"(?:(?::|=|/)?(?:\S*))?) ?)")
     spf_mechanisms = re.findall(spf_mechanism_pattern, spf_string)
 
     return spf_mechanisms
@@ -191,6 +191,6 @@ def get_spf_string_for_domain(domain):
     try:
         txt_records = Resolver.resolver().query(domain, query_type="TXT")
         return _find_record_from_answers(txt_records)
-    except IOError as e:
+    except IOError:
         # This is returned usually as a NXDOMAIN, which is expected.
         return None
