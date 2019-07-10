@@ -1,12 +1,16 @@
 language: python
-python: 3.6
+python:
+  - 2.7
+  - 3.6
+  - 3.7
 cache: pip
 notifications:
   email:
     on_success: never
     on_failure: always
-script:
+install:
   - pip install tox-travis coveralls
-  - tox -e py27 -e py36 -e flake8
+script:
+  - tox
 after_success:
   - coverage combine .coverage && coveralls

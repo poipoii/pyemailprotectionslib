@@ -26,5 +26,5 @@ Example:
     spf_record = spf.SpfRecord.from_domain("google.com")
     dmarc_record = dmarc.DmarcRecord.from_domain("google.com")
     
-    print spf_record.record
-    print dmarc_record.policy
+    print(spf_record.record)
+    print(dmarc_record.policy)
